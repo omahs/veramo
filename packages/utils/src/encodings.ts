@@ -130,3 +130,11 @@ export function bytesToHex(byteArray: Uint8Array, prefix: boolean = false): stri
 export function base58ToBytes(s: string): Uint8Array {
   return u8a.fromString(s, 'base58btc')
 }
+
+export const MULTIBASE_BASE58BTC_PREFIX = 'z'
+export const MULTICODEC_PREFIX = [0xed, 0x01]
+export function hexToMultibase(hexString: string): string {
+  const hexBytes = u8a.fromString(hexString, 'hex')
+  const modifiedKey = u8a.concat([MULTICODEC_PREFIX, hexBytes])
+  return `${MULTIBASE_BASE58BTC_PREFIX}${u8a.toString(modifiedKey, 'base58btc')}`
+}
