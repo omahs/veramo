@@ -12,13 +12,13 @@ import { CredentialPlugin } from '../../../credential-w3c/src'
 import { DIDManager, MemoryDIDStore } from '../../../did-manager/src'
 import { KeyManager, MemoryKeyStore, MemoryPrivateKeyStore } from '../../../key-manager/src'
 import { KeyManagementSystem } from '../../../kms-local/src'
-import { getDidKeyResolver, KeyDIDProvider } from '../../../did-provider-key/src'
 import { DIDResolverPlugin } from '../../../did-resolver/src'
 import { ContextDoc } from '../types'
 import { CredentialIssuerLD } from '../action-handler'
 import { LdDefaultContexts } from '../ld-default-contexts'
 import { VeramoEd25519Signature2020 } from '../suites/Ed25519Signature2020'
 import { Resolver } from 'did-resolver'
+import { FakeDidProvider, FakeDidResolver } from '../../../test-utils/src/fake-did'
 
 jest.setTimeout(300000)
 
@@ -31,7 +31,7 @@ const customContext: Record<string, ContextDoc> = {
 }
 
 describe('credential-LD full flow', () => {
-  let didKeyIdentifier: IIdentifier
+  let didFakeIdentifier: IIdentifier
   let agent: TAgent<IResolver & IKeyManager & IDIDManager & ICredentialPlugin>
 
   beforeAll(async () => {
@@ -45,14 +45,14 @@ describe('credential-LD full flow', () => {
         }),
         new DIDManager({
           providers: {
-            'did:key': new KeyDIDProvider({ defaultKms: 'local' }),
+            'did:fake': new FakeDidProvider(),
           },
           store: new MemoryDIDStore(),
-          defaultProvider: 'did:key',
+          defaultProvider: 'did:fake',
         }),
         new DIDResolverPlugin({
           resolver: new Resolver({
-            ...getDidKeyResolver(),
+            ...new FakeDidResolver(() => agent, true).getDidFakeResolver(),
           }),
         }),
         new CredentialPlugin(),
@@ -62,12 +62,33 @@ describe('credential-LD full flow', () => {
         }),
       ],
     })
-    didKeyIdentifier = await agent.didManagerCreate()
+    didFakeIdentifier = await agent.didManagerImport({
+      did: 'did:fake:z6MkgbqNU4uF9NKSz5BqJQ4XKVHuQZYcUZP8pXGsJC8nTHwo',
+      keys: [
+        {
+          type: 'Ed25519',
+          kid: 'didcomm-senderKey-1',
+          publicKeyHex: '1fe9b397c196ab33549041b29cf93be29b9f2bdd27322f05844112fad97ff92a',
+          privateKeyHex:
+            'b57103882f7c66512dc96777cbafbeb2d48eca1e7a867f5a17a84e9a6740f7dc1fe9b397c196ab33549041b29cf93be29b9f2bdd27322f05844112fad97ff92a',
+          kms: 'local',
+        },
+      ],
+      services: [
+        {
+          id: 'msg1',
+          type: 'DIDCommMessaging',
+          serviceEndpoint: 'http://localhost:3002/messaging',
+        },
+      ],
+      provider: 'did:fake',
+      alias: 'sender',
+    })
   })
 
   it('works with Ed25519Signature2020 credential', async () => {
     const credential: CredentialPayload = {
-      issuer: didKeyIdentifier.did,
+      issuer: didFakeIdentifier.did,
       '@context': ['custom:example.context'],
       credentialSubject: {
         nothing: 'else matters',
@@ -89,7 +110,7 @@ describe('credential-LD full flow', () => {
 
   it('works with Ed25519Signature2020 credential and presentation', async () => {
     const credential: CredentialPayload = {
-      issuer: didKeyIdentifier.did,
+      issuer: didFakeIdentifier.did,
       '@context': ['custom:example.context'],
       credentialSubject: {
         nothing: 'else matters',
@@ -103,7 +124,7 @@ describe('credential-LD full flow', () => {
     const verifiablePresentation = await agent.createVerifiablePresentation({
       presentation: {
         verifiableCredential: [verifiableCredential1],
-        holder: didKeyIdentifier.did,
+        holder: didFakeIdentifier.did,
       },
       challenge: 'VERAMO',
       proofFormat: 'lds',
