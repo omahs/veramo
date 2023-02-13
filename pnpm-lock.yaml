@@ -1057,7 +1057,7 @@ importers:
       did-jwt-vc: ^3.1.0
       did-resolver: ^4.0.1
       elliptic: ^6.5.4
-      multiformats: ^9.9.0
+      multiformats: ^11.0.0
       uint8arrays: ^3.0.0
     dependencies:
       '@ethersproject/signing-key': 5.7.0
@@ -1072,7 +1072,7 @@ importers:
       did-jwt-vc: 3.1.0
       did-resolver: 4.0.1
       elliptic: 6.5.4
-      multiformats: 9.9.0
+      multiformats: 11.0.0
       uint8arrays: 3.1.1
     devDependencies:
       '@types/debug': 4.1.7
@@ -14051,7 +14051,6 @@ packages:
   /multiformats/11.0.0:
     resolution: {integrity: sha512-vqF8bmMtbxw9Zn3eTpk0OZQdBVmAT/+bTGwXb3C2qCNkp45aJMmkCDds3lrtObECWPf+KFjFtTOHkvCaT/c/xQ==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
-    dev: true
 
   /multiformats/9.9.0:
     resolution: {integrity: sha512-HoMUjhH9T8DDBNT+6xzkrd9ga/XiBI4xLr58LJACwK6G3HTOPeMz4nB4KJs33L2BelrIJa7P0VuNaVF3hMYfjg==}
