@@ -19,7 +19,7 @@ roles:
 * Create and manage Decentralized Identifiers (DID)
 * Issue Verifiable Credentials (VCs) and Presentations (VPs)
 * Verify such VCs and VPs
-* Present credentials using Selective Diclosure
+* Present credentials using Selective Disclosure
 * Communicate with other agents using DIDComm (or other protocols)
 * Receive, filter, store and serve data
 * Control other agents remotely, or act as a proxy for them
